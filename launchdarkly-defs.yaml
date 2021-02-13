@@ -1,0 +1,1547 @@
+# Taken from https://github.com/launchdarkly/ld-openapi/blob/master/spec/definitions.yaml
+#
+# All example values were removed, they don't work with paperclip
+#
+swagger: "2.0"
+info:
+  title: LaunchDarkly REST API
+  description: Build custom integrations with the LaunchDarkly REST API
+  termsOfService: https://launchdarkly.com/terms
+  contact:
+    name: LaunchDarkly Support
+    url: https://support.launchdarkly.com
+    email: support@launchdarkly.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 5.0.0
+paths: {}
+definitions:
+  Link:
+    type: object
+    properties:
+      href:
+        type: string
+      type:
+        type: string
+  Links:
+    type: object
+    properties:
+      "self":
+        $ref: "#/definitions/Link"
+      "next":
+        $ref: "#/definitions/Link"
+  Site:
+    type: object
+    properties:
+      "href":
+        type: string
+      "type":
+        type: string
+  Webhook:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      _id:
+        $ref: "#/definitions/Id"
+      url:
+        type: string
+        description: The URL of the remote webhook.
+      secret:
+        type: string
+        description: If defined, the webhooks post request will include a X-LD-Signature header whose value will contain an HMAC SHA256 hex digest of the webhook payload, using the secret as the key.
+      on:
+        type: boolean
+        description: Whether this webhook is enabled or not.
+      name:
+        type: string
+        description: The name of the webhook.
+      statements:
+        type: array
+        items:
+          $ref: "#/definitions/Statement"
+      tags:
+        type: array
+        description: Tags assigned to this webhook.
+        items:
+          type: string
+  Webhooks:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/Webhook"
+  FeatureFlag:
+    type: object
+    properties:
+      key:
+        type: string
+      name:
+        type: string
+        description: Name of the feature flag.
+      description:
+        type: string
+        description: Description of the feature flag.
+      kind:
+        type: string
+        description: Whether the feature flag is a boolean flag or multivariate.
+      creationDate:
+        type: integer
+        format: int64
+        description: A unix epoch time in milliseconds specifying the creation time of this flag.
+      includeInSnippet:
+        type: boolean
+      temporary:
+        type: boolean
+        description: Whether or not this flag is temporary.
+      maintainerId:
+        type: string
+        description: The ID of the member that should maintain this flag.
+      tags:
+        type: array
+        description: An array of tags for this feature flag.
+        items:
+          type: string
+      variations:
+        type: array
+        description: The variations for this feature flag.
+        items:
+          $ref: "#/definitions/Variation"
+      goalIds:
+        type: array
+        description: An array goals from all environments associated with this feature flag
+        items:
+          type: string
+      _version:
+        type: integer
+      customProperties:
+        type: object
+        description: A mapping of keys to CustomProperty entries.
+        additionalProperties:
+          $ref: "#/definitions/CustomProperty"
+      _links:
+        $ref: "#/definitions/Links"
+      _maintainer:
+        $ref: "#/definitions/Member"
+      environments:
+        type: object
+        additionalProperties:
+          $ref: "#/definitions/FeatureFlagConfig"
+      archivedDate:
+        type: integer
+        format: int64
+        description: A unix epoch time in milliseconds specifying the archived time of this flag.
+      archived:
+        type: boolean
+        description: Whether or not this flag is archived.
+      clientSideAvailability:
+        $ref: "#/definitions/ClientSideAvailability"
+      defaults:
+        $ref: "#/definitions/Defaults"
+  FeatureFlags:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/FeatureFlag"
+      totalCount:
+        type: number
+  Member:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      _id:
+        $ref: "#/definitions/Id"
+      role:
+        $ref: "#/definitions/Role"
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      _verified:
+        type: boolean
+      _pendingInvite:
+        type: boolean
+      isBeta:
+        type: boolean
+      customRoles:
+        type: array
+        items:
+          $ref: "#/definitions/Id"
+      _lastSeen:
+        type: integer
+        format: int64
+        description: A unix epoch time in milliseconds specifying the last time this member was active in LaunchDarkly.
+      _lastSeenMetadata:
+        type: object
+        properties:
+          tokenId:
+            type: string
+            description: If the last time this member accessed LaunchDarkly was using the REST API, this value will be set to the ID of the personal access token used.
+  Members:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/Member"
+      totalCount:
+        type: number
+  FeatureFlagConfig:
+    type: object
+    properties:
+      "on":
+        type: boolean
+      archived:
+        type: boolean
+      salt:
+        type: string
+      sel:
+        type: string
+      lastModified:
+        type: integer
+        format: int64
+      version:
+        type: integer
+      targets:
+        type: array
+        items:
+          $ref: "#/definitions/Target"
+      rules:
+        type: array
+        items:
+          $ref: "#/definitions/Rule"
+      fallthrough:
+        $ref: "#/definitions/Fallthrough"
+      offVariation:
+        type: integer
+      prerequisites:
+        type: array
+        items:
+          $ref: "#/definitions/Prerequisite"
+      trackEvents:
+        type: boolean
+        description: Set to true to send detailed event information for this flag.
+      trackEventsFallthrough:
+        type: boolean
+        description: Set to true to send detailed event information when targeting is enabled but no individual targeting rule is matched.
+      _site:
+        $ref: "#/definitions/Site"
+      _environmentName:
+        type: string
+  Target:
+    type: object
+    properties:
+      values:
+        type: array
+        items:
+          type: string
+      variation:
+        type: integer
+  Rule:
+    type: object
+    properties:
+      _id:
+        type: string
+      variation:
+        type: integer
+      trackEvents:
+        type: boolean
+      rollout:
+        $ref: "#/definitions/Rollout"
+      clauses:
+        type: array
+        items:
+          $ref: "#/definitions/Clause"
+      description:
+        type: string
+  Fallthrough:
+    type: object
+    properties:
+      variation:
+        type: integer
+      rollout:
+        $ref: "#/definitions/Rollout"
+  Rollout:
+    type: object
+    properties:
+      bucketBy:
+        type: string
+      variations:
+        type: array
+        items:
+          $ref: "#/definitions/WeightedVariation"
+  WeightedVariation:
+    type: object
+    properties:
+      variation:
+        type: integer
+      weight:
+        type: integer
+  Clause:
+    type: object
+    properties:
+      _id:
+        type: string
+      attribute:
+        type: string
+      op:
+        type: string
+      values:
+        type: array
+        items:
+          type: string
+      negate:
+        type: boolean
+  Variation:
+    type: object
+    required:
+      - value
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+      value:
+        type: object
+  Defaults:
+    type: object
+    description: Default values to be used when a new environment is created.
+    required:
+      - onVariation
+      - offVariation
+    properties:
+      onVariation:
+        type: integer
+        description: The index of the variation to be served when a flag's targeting is on (default variation).
+      offVariation:
+        type: integer
+        description: The index of the variation to be served when a flag is off.
+  Prerequisite:
+    type: object
+    properties:
+      key:
+        type: string
+      variation:
+        type: integer
+  FeatureFlagScheduledChanges:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/FeatureFlagScheduledChange"
+  FeatureFlagScheduledChange:
+    type: object
+    properties:
+      executionDate:
+        type: integer
+        description: "A unix epoch time in milliseconds specifying the date the scheduled changes will be applied"
+      _version:
+        type: integer
+      _id:
+        type: string
+      instructions:
+        $ref: "#/definitions/SemanticPatchInstruction"
+  FeatureFlagScheduledChangesConflicts:
+    type: object
+    properties:
+      instructions:
+        type: array
+        items:
+          properties:
+            kind:
+              type: string
+              description: The name of the modification you would like to perform on a resource.
+            conflicts:
+              type: array
+              items:
+                $ref: "#/definitions/ScheduledChangesFeatureFlagConflict"
+  ScheduledChangesFeatureFlagConflict:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: "Feature flag scheduled change id this change will conflict with"
+      reason:
+        type: string
+        description: "Feature flag scheduled change conflict reason"
+  ApprovalRequests:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/ApprovalRequest"
+  ApprovalRequest:
+    type: object
+    properties:
+      _id:
+        $ref: "#/definitions/Id"
+      _version:
+        type: integer
+      creationDate:
+        type: integer
+        description: A unix epoch time in milliseconds specifying the date the approval request was requested
+      requestorId:
+        type: string
+        description: The id of the member that requested the change
+      reviewStatus:
+        $ref: "#/definitions/ApprovalRequestReviewStatus"
+      status:
+        type: string
+        description: |
+          | Name     | Description |
+          | --------:| ----------- |
+          | pending  | the approval request has not been applied yet |
+          | completed| the approval request has been applied successfully |
+          | failed   | the approval request has been applied but the changes were not applied successfully |
+        enum:
+          - pending
+          - completed
+          - failed
+      appliedByMemberID:
+        type: string
+        description: The id of the member that applied the approval request
+      appliedDate:
+        type: integer
+        description: A unix epoch time in milliseconds specifying the date the approval request was applied
+      allReviews:
+        type: array
+        items:
+          $ref: "#/definitions/ApprovalRequestReview"
+      notifyMemberIds:
+        type: array
+        items:
+          type: string
+      instructions:
+        $ref: "#/definitions/SemanticPatchInstruction"
+  ApprovalRequestReview:
+    type: object
+    properties:
+      creationDate:
+        type: integer
+        description: A unix epoch time in milliseconds specifying the date the approval request was reviewed
+      kind:
+        $ref: "#/definitions/ApprovalRequestReviewStatus"
+      memberId:
+        $ref: "#/definitions/Id"
+      _id:
+        $ref: "#/definitions/Id"
+  ApprovalRequestReviewStatus:
+    type: string
+    description: |
+      | Name     | Description |
+      | --------:| ----------- |
+      | pending  | the approval request has not been reviewed yet |
+      | approved | the approval request has been approved and can now be applied |
+      | declined | the approval request has been declined and cannot be applied |
+    enum:
+      - pending
+      - approved
+      - declined
+  ClientSideAvailability:
+    type: object
+    properties:
+      usingEnvironmentId:
+        type: boolean
+        description: When set to true, this flag will be available to SDKs using the client-side id.
+      usingMobileKey:
+        type: boolean
+        description: When set to true, this flag will be available to SDKS using a mobile key.
+  FeatureFlagStatus:
+    type: object
+    properties:
+      name:
+        type: string
+        description: |
+          | Name     | Description |
+          | --------:| ----------- |
+          | new      | the feature flag was created within the last 7 days, and has not been requested yet |
+          | active   | the feature flag was requested by your servers or clients within the last 7 days |
+          | inactive | the feature flag was created more than 7 days ago, and hasn't been requested by your servers or clients within the past 7 days |
+          | launched | one variation of the feature flag has been rolled out to all your users for at least 7 days |
+        enum:
+          - new
+          - active
+          - inactive
+          - launched
+      lastRequested:
+        type: string
+      default:
+        type: object
+      _links:
+        $ref: "#/definitions/Links"
+  FeatureFlagStatuses:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/FeatureFlagStatus"
+  FeatureFlagStatusForQueriedEnvironment:
+    type: object
+    properties:
+      name:
+        type: string
+        description: |
+          | Name     | Description |
+          | --------:| ----------- |
+          | new      | the feature flag was created within the last 7 days, and has not been requested yet |
+          | active   | the feature flag was requested by your servers or clients within the last 7 days |
+          | inactive | the feature flag was created more than 7 days ago, and hasn't been requested by your servers or clients within the past 7 days |
+          | launched | one variation of the feature flag has been rolled out to all your users for at least 7 days |
+        enum:
+          - new
+          - active
+          - inactive
+          - launched
+      lastRequested:
+        type: string
+      default:
+        type: object
+  FeatureFlagStatusAcrossEnvironments:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      key:
+        type: string
+      environments:
+        type: object
+        additionalProperties:
+          $ref: "#/definitions/FeatureFlagStatusForQueriedEnvironment"
+  UserTargetingExpirationForFlags:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/UserTargetingExpirationForFlag"
+  UserTargetingExpirationOnFlagsForUser:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/UserTargetingExpirationForFlag"
+  UserTargetingExpirationForFlag:
+    type: object
+    properties:
+      expirationDate:
+        type: integer
+        format: int64
+        description: Unix epoch time in milliseconds specifying the expiration date
+      variationId:
+        type: string
+        description: the ID of the variation that the user is targeted on a flag
+      userKey:
+        type: string
+        description: Unique identifier for the user
+      _id:
+        type: string
+      _resourceId:
+        $ref: "#/definitions/UserTargetingExpirationResourceIdForFlag"
+      _links:
+        $ref: "#/definitions/Links"
+      _version:
+        type: integer
+  UserTargetingExpirationForSegment:
+    type: object
+    properties:
+      expirationDate:
+        type: integer
+        format: int64
+        description: Unix epoch time in milliseconds specifying the expiration date
+      targetType:
+        type: string
+        description: either the included or excluded variation that the user is targeted on a segment
+      userKey:
+        type: string
+        description: Unique identifier for the user
+      _id:
+        type: string
+      _resourceId:
+        $ref: "#/definitions/UserTargetingExpirationResourceIdForFlag"
+      _links:
+        $ref: "#/definitions/Links"
+      _version:
+        type: integer
+  UserTargetingExpirationResourceIdForFlag:
+    type: object
+    properties:
+      kind:
+        type: string
+      projectKey:
+        type: string
+      environmentKey:
+        type: string
+      flagKey:
+        type: string
+      key:
+        type: string
+  UserSegment:
+    type: object
+    required:
+      - key
+      - name
+      - creationDate
+    properties:
+      key:
+        type: string
+        description: Unique identifier for the user segment.
+      name:
+        type: string
+        description: Name of the user segment.
+      description:
+        type: string
+        description: Description of the user segment.
+      tags:
+        type: array
+        items:
+          type: string
+        description: An array of tags for this user segment.
+      creationDate:
+        type: integer
+        format: int64
+        description: A unix epoch time in milliseconds specifying the creation time of this flag.
+      included:
+        type: array
+        items:
+          type: string
+        description: An array of user keys that are included in this segment.
+      excluded:
+        type: array
+        items:
+          type: string
+        description: An array of user keys that should not be included in this segment, unless they are also listed in "included".
+      rules:
+        type: array
+        items:
+          $ref: "#/definitions/UserSegmentRule"
+        description: An array of rules that can cause a user to be included in this segment.
+      unbounded:
+        type: boolean
+        description: Controls whether this segment can support unlimited numbers of users. Requires the beta API and additional setup. Include/exclude lists in this payload are not used in unbounded segments.
+      version:
+        type: integer
+      _links:
+        $ref: "#/definitions/Links"
+      _flags:
+        type: array
+        readOnly: true
+        items:
+          $ref: "#/definitions/FlagListItem"
+  UserSegmentRule:
+    type: object
+    properties:
+      clauses:
+        type: array
+        items:
+          $ref: "#/definitions/Clause"
+      weight:
+        type: integer
+      bucketBy:
+        type: string
+  UserSegments:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/UserSegment"
+  UnboundedSegmentTargetChanges:
+    type: object
+    properties:
+      add:
+        type: array
+        items:
+          type: string
+        description: Users to add to this list of targets
+      remove:
+        type: array
+        items:
+          type: string
+        description: Users to remove from this list of targets
+  Project:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      _id:
+        $ref: "#/definitions/Id"
+      key:
+        type: string
+      name:
+        type: string
+      includeInSnippetByDefault:
+        type: boolean
+      environments:
+        type: array
+        items:
+          $ref: "#/definitions/Environment"
+      tags:
+        type: array
+        items:
+          type: string
+        description: An array of tags for this project.
+      defaultClientSideAvailability:
+        $ref: "#/definitions/ClientSideAvailability"
+  Projects:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/Project"
+  Destination:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      _id:
+        type: string
+        description: Unique destination ID.
+      name:
+        type: string
+        description: The destination name
+      kind:
+        type: string
+        description: Destination type ("google-pubsub", "kinesis", "mparticle", or "segment")
+        enum: [google-pubsub, kinesis, mparticle, segment]
+      config:
+        type: object
+        description: destination-specific configuration.
+      on:
+        type: boolean
+        description: Whether the data export destination is on or not.
+      version:
+        type: integer
+  Destinations:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/Destination"
+  DestinationGooglePubSub:
+    type: object
+    properties:
+      project:
+        type: string
+      topic:
+        type: string
+  DestinationAmazonKinesis:
+    type: object
+    properties:
+      region:
+        type: string
+      roleArn:
+        type: string
+      streamName:
+        type: string
+  DestinationMParticle:
+    type: object
+    properties:
+      apiKey:
+        type: string
+      secret:
+        type: string
+      userIdentity:
+        type: string
+      environment:
+        type: string
+  DestinationSegment:
+    type: object
+    properties:
+      writeKey:
+        type: string
+  Environment:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      _id:
+        $ref: "#/definitions/Id"
+      key:
+        type: string
+        description: The key for the environment.
+      name:
+        type: string
+        description: The name of the environment.
+      apiKey:
+        type: string
+        description: The SDK key for backend LaunchDarkly SDKs.
+      mobileKey:
+        type: string
+        description: The SDK key for mobile LaunchDarkly SDKs.
+      color:
+        type: string
+        description: The swatch color for the environment.
+      defaultTtl:
+        type: number
+        description: The default TTL.
+      secureMode:
+        type: boolean
+        description: Determines if this environment is in safe mode.
+      defaultTrackEvents:
+        type: boolean
+        description: Set to true to send detailed event information for new flags.
+      tags:
+        type: array
+        items:
+          type: string
+        description: An array of tags for this environment.
+      requireComments:
+        type: boolean
+        description: Determines if this environment requires comments for flag and segment changes.
+      confirmChanges:
+        type: boolean
+        description: Determines if this environment requires confirmation for flag and segment changes.
+      approvalSettings:
+        type: object
+        description: Approval settings for an environment. Only appears if the approvals feature is enabled.
+        properties:
+          serviceKind:
+            type: string
+            description: The approvals system used.
+            enum:
+              - launchdarkly
+              - service-now
+          required:
+            type: boolean
+            description: Whether any changes to flags in this environment will require approval.
+          canReviewOwnRequest:
+            type: boolean
+            description: Whether requesters can approve or decline their own request. They may always comment.
+          minNumApprovals:
+            type: integer
+            format: int64
+            description: The number of approvals required before an approval request can be applied.
+          canApplyDeclinedChanges:
+            type: boolean
+            description: Whether changes can be applied as long as minNumApprovals is met, regardless of if any reviewers have declined a request.
+  EnvironmentPost:
+    type: object
+    properties:
+      name:
+        type: string
+        description: The name of the new environment.
+      key:
+        type: string
+        description: A project-unique key for the new environment.
+      color:
+        type: string
+        description: A color swatch (as an RGB hex value with no leading '#', e.g. C8C8C8).
+      defaultTtl:
+        type: number
+        description: The default TTL for the new environment.
+      secureMode:
+        type: boolean
+        description: Determines whether the environment is in secure mode.
+      defaultTrackEvents:
+        type: boolean
+        description: Set to true to send detailed event information for newly created flags.
+      tags:
+        type: array
+        description: An array of tags for this environment.
+        items:
+          type: string
+      requireComments:
+        type: boolean
+        description: Determines if this environment requires comments for flag and segment changes.
+      confirmChanges:
+        type: boolean
+        description: Determines if this environment requires confirmation for flag and segment changes.
+    required:
+      - name
+      - key
+      - color
+  User:
+    type: object
+    properties:
+      key:
+        type: string
+      secondary:
+        type: string
+      ip:
+        type: string
+      country:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      avatar:
+        type: string
+      name:
+        type: string
+      anonymous:
+        type: boolean
+      custom:
+        type: object
+  UserRecord:
+    type: object
+    properties:
+      lastPing:
+        type: string
+      environmentId:
+        type: string
+      ownerId:
+        $ref: "#/definitions/Id"
+      user:
+        $ref: "#/definitions/User"
+      avatar:
+        type: string
+  Users:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      totalCount:
+        type: number
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/UserRecord"
+  AuditLogEntry:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      _id:
+        $ref: "#/definitions/Id"
+      date:
+        type: integer
+        format: int64
+      kind:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+      shortDescription:
+        type: string
+      comment:
+        type: string
+      member:
+        $ref: "#/definitions/Member"
+      titleVerb:
+        type: string
+      title:
+        type: string
+      target:
+        type: object
+        properties:
+          _links:
+            $ref: "#/definitions/Links"
+          name:
+            type: string
+          resources:
+            type: array
+            items:
+              type: string
+  AuditLogEntries:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/AuditLogEntry"
+  UserFlagSetting:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      _value:
+        type: boolean
+        description: The most important attribute in the response. The _value is the current setting for the user. For a boolean feature toggle, this will be true, false, or null if there is no defined fallthrough value.
+      setting:
+        type: boolean
+        description: The setting attribute indicates whether you've explicitly targeted this user to receive a particular variation. For example, if you have explicitly turned off a feature toggle for a user, setting will be false. A setting of null means that you haven't assigned that user to a specific variation.
+  # This definition relies on it's "example" property to define it's structure.
+  UserFlagSettings:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: object
+        additionalProperties:
+          $ref: "#/definitions/UserFlagSetting"
+  Statement:
+    type: object
+    properties:
+      resources:
+        type: array
+        items:
+          type: string
+          description: A resource specifier string
+      notResources:
+        type: array
+        items:
+          type: string
+          description: A resource specifier string
+        description: Targeted resource will be those resources NOT in this list. The "resources`" field must be empty to use this field.
+      actions:
+        type: array
+        items:
+          type: string
+          description: An action to perform on a resource.
+      notActions:
+        type: array
+        items:
+          type: string
+          description: An action to perform on a resource.
+        description: Targeted actions will be those actions NOT in this list. The "actions" field must be empty to use this field.
+      effect:
+        type: string
+        enum:
+          - allow
+          - deny
+  Role:
+    type: string
+    enum:
+      - writer
+      - reader
+      - admin
+      - owner
+  CustomRole:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      name:
+        type: string
+        description: Name of the custom role.
+      key:
+        type: string
+        description: The 20-hexdigit id or the key for a custom role.
+      description:
+        type: string
+        description: Description of the custom role.
+      _id:
+        $ref: "#/definitions/Id"
+      policy:
+        type: array
+        items:
+          $ref: "#/definitions/Policy"
+  CustomRoles:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/CustomRole"
+  Policy:
+    type: object
+    properties:
+      resources:
+        type: array
+        items:
+          type: string
+          description: A resource specifier string
+      notResources:
+        type: array
+        items:
+          type: string
+          description: A resource specifier string
+        description: Targeted resource will be those resources NOT in this list. The "resources`" field must be empty to use this field.
+      actions:
+        type: array
+        items:
+          type: string
+          description: An action to perform on a resource.
+      notActions:
+        type: array
+        items:
+          type: string
+          description: An action to perform on a resource.
+        description: Targeted actions will be those actions NOT in this list. The "actions" field must be empty to use this field.
+      effect:
+        type: string
+        description: Effect of the policy - allow or deny.
+  Id:
+    type: string
+    description: The unique resource id.
+  PatchOperation:
+    type: object
+    properties:
+      op:
+        type: string
+      path:
+        type: string
+      value:
+        type: object
+    required:
+      - op
+      - path
+      - value
+  SemanticPatchOperation:
+    type: object
+    properties:
+      comment:
+        type: string
+      instructions:
+        $ref: "#/definitions/SemanticPatchInstruction"
+    required:
+      - instructions
+  SemanticPatchInstruction:
+    type: array
+    items:
+      properties:
+        kind:
+          type: string
+          description: The name of the modification you would like to perform on a resource.
+  CustomProperty:
+    type: object
+    description: A name and value describing a custom property.
+    properties:
+      name:
+        type: string
+        description: The name of the property.
+      value:
+        type: array
+        description: Values for this property.
+        items:
+          type: string
+    required:
+      - name
+  CustomPropertyValues:
+    type: array
+    description: Values for this property.
+    items:
+      type: string
+  # Customer Metrics Definitions
+  UsageLinks:
+    type: object
+    properties:
+      "parent":
+        $ref: "#/definitions/Link"
+      "self":
+        $ref: "#/definitions/Link"
+      "subseries":
+        type: array
+        description: The following links that are in the response.
+        items:
+          $ref: "#/definitions/Link"
+  StreamLinks:
+    type: object
+    properties:
+      "parent":
+        $ref: "#/definitions/Link"
+      "self":
+        $ref: "#/definitions/Link"
+      "subseries":
+        type: array
+        description: Links to endpoints that are in the request path.
+        items:
+          $ref: "#/definitions/Link"
+  Usage:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/UsageLinks"
+      # metadata:
+      #   type: string
+      series:
+        type: array
+        items:
+          $ref: "#/definitions/StreamUsageSeries"
+  UsageError:
+    type: object
+    properties:
+      "message":
+        type: string
+  Streams:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/StreamUsageLinks"
+  Stream:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/StreamUsageLinks"
+      metadata:
+        type: array
+        items:
+          $ref: "#/definitions/StreamUsageMetadata"
+      series:
+        type: array
+        items:
+          $ref: "#/definitions/StreamUsageSeries"
+  StreamUsageLinks:
+    type: object
+    properties:
+      "parent":
+        $ref: "#/definitions/Link"
+      "self":
+        $ref: "#/definitions/Link"
+      "subseries":
+        type: array
+        description: The following links that are in the response.
+        items:
+          $ref: "#/definitions/Link"
+  StreamUsageSeries:
+    type: object
+    properties:
+      # Paperclip does not support bare numbers a object keys
+      # "0":
+      #   type: integer
+      #   format: int64
+      #   description: A key corresponding to a time series data point.
+      "time":
+        type: integer
+        format: int64
+        description: A unix epoch time in milliseconds specifying the creation time of this flag.
+  StreamUsageMetadata:
+    type: object
+    properties:
+      "sdk":
+        type: string
+        description: The language of the sdk
+      "version":
+        type: string
+        description: The version of the SDK
+      "source":
+        type: string
+  StreamUsageError:
+    type: object
+    properties:
+      "code":
+        type: string
+      "message":
+        type: string
+  StreamBySDK:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/StreamBySDKLinks"
+      metadata:
+        type: array
+        items:
+          $ref: "#/definitions/StreamBySDKLinksMetadata"
+      series:
+        type: array
+        items:
+          $ref: "#/definitions/StreamUsageSeries"
+  StreamBySDKLinks:
+    type: object
+    properties:
+      "parent":
+        $ref: "#/definitions/Link"
+      "self":
+        $ref: "#/definitions/Link"
+  StreamBySDKLinksMetadata:
+    type: object
+    properties:
+      "sdk":
+        type: string
+      "version":
+        type: string
+      "source":
+        type: string
+  StreamSDKVersion:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/StreamBySDKLinks"
+      sdkVersions:
+        type: array
+        items:
+          $ref: "#/definitions/StreamSDKVersionData"
+  StreamSDKVersionData:
+    type: object
+    properties:
+      "sdk":
+        type: string
+        description: The language of the sdk
+      "version":
+        type: string
+        description: The version of the sdk
+  MAU:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/UsageLinks"
+      metadata:
+        type: array
+        items:
+          $ref: "#/definitions/StreamBySDKLinksMetadata"
+      series:
+        type: array
+        items:
+          $ref: "#/definitions/StreamUsageSeries"
+  MAUbyCategory:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/StreamBySDKLinks"
+      metadata:
+        type: array
+        items:
+          $ref: "#/definitions/MAUMetadata"
+      series:
+        type: array
+        items:
+          $ref: "#/definitions/StreamUsageSeries"
+  MAUMetadata:
+    type: object
+    # properties:
+    # 'sdk':
+    #   type: string
+    # 'version':
+    #   type: string
+    # 'source':
+    #   type: string
+  Events:
+    type: object
+    properties:
+      links:
+        $ref: "#/definitions/UsageLinks"
+  EvaluationUsageError:
+    type: object
+    properties:
+      "code":
+        type: string
+      "message":
+        type: string
+
+  FeatureFlagCopyObject:
+    type: object
+    properties:
+      key:
+        type: string
+        description: The environment key to be used.
+      currentVersion:
+        type: integer
+        description: If the latest version of the flag matches provided version it will copy, otherwise it will return a conflict.
+    required:
+      - key
+  CopyActions:
+    type: string
+    enum:
+      - updateOn
+      - updatePrerequisites
+      - updateTargets
+      - updateRules
+      - updateFallthrough
+      - updateOffVariation
+  FlagListItem:
+    type: object
+    properties:
+      name:
+        type: string
+      key:
+        type: string
+      _links:
+        $ref: "#/definitions/Links"
+      _site:
+        $ref: "#/definitions/Site"
+  Tokens:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/Token"
+  Token:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/Links"
+      _id:
+        $ref: "#/definitions/Id"
+      ownerId:
+        $ref: "#/definitions/Id"
+      memberId:
+        $ref: "#/definitions/Id"
+      _member:
+        $ref: "#/definitions/Member"
+      creationDate:
+        type: integer
+        format: int64
+        description: A unix epoch time in milliseconds specifying the creation time of this access token.
+      lastModified:
+        type: integer
+        format: int64
+        description: A unix epoch time in milliseconds specifying the last time this access token was modified.
+      lastUsed:
+        type: integer
+        format: int64
+        description: A unix epoch time in milliseconds specifying the last time this access token was used to authorize access to the LaunchDarkly REST API.
+      token:
+        type: string
+        description: The last 4 digits of the unique secret key for this access token. If creating or resetting the token, this will be the full token secret.
+      name:
+        type: string
+        description: A human-friendly name for the access token
+      role:
+        type: string
+        description: The name of a built-in role for the token
+      customRoleIds:
+        type: array
+        items:
+          type: string
+        description: A list of custom role IDs to use as access limits for the access token
+      inlineRole:
+        type: array
+        items:
+          $ref: "#/definitions/Statement"
+      serviceToken:
+        type: boolean
+        description: "Whether the token will be a service token https://docs.launchdarkly.com/home/account-security/api-access-tokens#service-tokens"
+      defaultApiVersion:
+        type: integer
+        description: The default API version for this token
+  RelayProxyConfigs:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/RelayProxyConfig"
+  RelayProxyConfig:
+    type: object
+    properties:
+      _id:
+        $ref: "#/definitions/Id"
+      _creator:
+        $ref: "#/definitions/Member"
+      name:
+        type: string
+        description: A human-friendly name for the relay proxy configuration
+      policy:
+        type: array
+        items:
+          $ref: "#/definitions/Policy"
+      fullKey:
+        type: string
+        description: Full secret key. Only included if creating or resetting the relay proxy configuration
+      displayKey:
+        type: string
+        description: The last 4 digits of the unique secret key for this relay proxy configuration
+      creationDate:
+        type: integer
+        format: int64
+        description: A unix epoch time in milliseconds specifying the creation time of this relay proxy configuration
+      lastModified:
+        type: integer
+        format: int64
+        description: A unix epoch time in milliseconds specifying the last time this relay proxy configuration was modified
+    required:
+      - _id
+      - _creator
+      - name
+      - policy
+      - displayKey
+      - creationDate
+      - lastModified
+  HierarchicalLinks:
+    type: object
+    properties:
+      "parent":
+        $ref: "#/definitions/Link"
+      "self":
+        $ref: "#/definitions/Link"
+  IntegrationSubscription:
+    type: object
+    properties:
+      _links:
+        $ref: "#/definitions/HierarchicalLinks"
+      _id:
+        $ref: "#/definitions/Id"
+      kind:
+        type: string
+        description: The type of integration associated with this configuration.
+      name:
+        type: string
+        description: The user-defined name associated with this configuration.
+      config:
+        type: object
+        description: A key-value mapping of configuration fields.
+      statements:
+        type: array
+        items:
+          $ref: "#/definitions/Statement"
+      on:
+        type: boolean
+        description: Whether or not the integration is currently active.
+      tags:
+        type: array
+        items:
+          type: string
+        description: An array of tags for this integration configuration.
+      _status:
+        type: object
+        properties:
+          successCount:
+            type: integer
+          lastSuccess:
+            type: integer
+            format: int64
+            description: A unix epoch time in milliseconds specifying the last time this integration was successfully used.
+          errorCount:
+            type: integer
+  Integration:
+    type: object
+    properties:
+      _links:
+        type: object
+        properties:
+          "self":
+            $ref: "#/definitions/Link"
+      items:
+        type: array
+        items:
+          $ref: "#/definitions/IntegrationSubscription"
+  Integrations:
+    type: object
+    properties:
+      _links:
+        type: object
+        description: A mapping of integration types to their respective API endpoints.
+      items:
+        type: array
+        items:
+          type: object
+          $ref: "#/definitions/IntegrationSubscription"
